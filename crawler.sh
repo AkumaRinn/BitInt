@@ -20,6 +20,41 @@ help_command()
     fi
 }
 
+user_check() {
+
+    username="$1"
+
+    if [ -z "$username" ]; then
+        echo "Missing username"
+        return
+    fi
+
+    echo "Searching for username: $username"
+    echo "--------------------------------"
+
+    sites=(
+        "https://github.com/$username"
+        "https://reddit.com/user/$username"
+        "https://twitter.com/$username"
+        "https://instagram.com/$username"
+        "https://tiktok.com/@$username"
+        "https://pinterest.com/$username"
+        "https://youtube.com/@$username"
+    )
+
+    for url in "${sites[@]}"; do
+
+        status=$(curl -s -o /dev/null -w "%{http_code}" "$url")
+
+        if [ "$status" = "200" ]; then
+            echo "[FOUND] $url"
+        else
+            echo "[----] $url"
+        fi
+
+    done
+}
+
 while true; do
     read -p "pp>>:" command arg1 arg2
     
@@ -37,10 +72,14 @@ while true; do
             echo "Bye"
             break
             ;;
-        *)
-            echo "Unknown command"
+        
+        user)
+            user_check "$arg1"
             ;;
 
+           *)
+            echo "Unknown command"
+            ;;
     esac
             
 
