@@ -8,6 +8,7 @@ what_command()
 {
             echo "what - this command - shows all available commands"
             echo "help 'command' - command use instructions"
+            echo "user - search for username on preset websites"
             echo "exit - close crawler"
 }
 
@@ -56,7 +57,7 @@ user_check() {
 }
 
 while true; do
-    read -p "pp>>:" command arg1 arg2
+    read -p "bitint-#:" command arg1 arg2
     
     case $command in
         
