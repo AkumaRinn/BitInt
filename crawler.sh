@@ -21,6 +21,47 @@ help_command()
     fi
 }
 
+generate_variations() {
+
+    username="$1"
+
+    lower="$username"
+    first_cap="$(tr '[:lower:]' '[:upper:]' <<< ${username:0:1})${username:1}"
+
+    half=$(( ${#username} / 2 ))
+    part1=${username:0:$half}
+    part2=${username:$half}
+
+    underscore="${part1}_${part2}"
+    dot="${part1}.${part2}"
+    dash="${part1}-${part2}"
+
+    variations=(
+        "$username"
+        "$lower"
+        "$first_cap"
+
+        "$underscore"
+        "$dot"
+        "$dash"
+
+        "${lower}1"
+        "${lower}123"
+        "${lower}99"
+
+        "${underscore}1"
+        "${underscore}99"
+
+        "${part2}_${part1}"
+        "${part2}.${part1}"
+
+        "${lower}_"
+        "_${lower}"
+    )
+}
+
+
+
 user_check() {
 
     username="$1"
@@ -30,31 +71,42 @@ user_check() {
         return
     fi
 
-    echo "Searching for username: $username"
-    echo "--------------------------------"
+    generate_variations "$username"
 
     sites=(
-        "https://github.com/$username"
-        "https://reddit.com/user/$username"
-        "https://twitter.com/$username"
-        "https://instagram.com/$username"
-        "https://tiktok.com/@$username"
-        "https://pinterest.com/$username"
-        "https://youtube.com/@$username"
+        "https://github.com/"
+        "https://reddit.com/user/"
+        "https://instagram.com/"
+        "https://twitter.com/"
+        "https://tiktok.com/@"
+        "https://pinterest.com/"
     )
 
-    for url in "${sites[@]}"; do
+    for name in "${variations[@]}"; do
 
-        status=$(curl -s -o /dev/null -w "%{http_code}" "$url")
+        echo ""
+        echo "Checking: $name"
 
-        if [ "$status" = "200" ]; then
-            echo "[FOUND] $url"
-        else
-            echo "[----] $url"
-        fi
+        for site in "${sites[@]}"; do
+
+            url="${site}${name}"
+
+            status=$(curl -s -o /dev/null -w "%{http_code}" "$url")
+
+            if [ "$status" = "200" ]; then
+                echo "[FOUND] $url"
+            else
+                echo "[...]"
+            fi
+
+        done
 
     done
 }
+
+
+
+#Main Loop
 
 while true; do
     read -p "bitint-#:" command arg1 arg2
