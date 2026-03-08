@@ -3,6 +3,13 @@
 echo "The crawler"
 echo "use 'what' to see available commands"
 
+# Ensure tmp folder exists - to store tmp data that can be saved into profiles
+mkdir -p tmp
+# Make sure temporary files exist and are empty
+: > tmp/last_links.txt
+: > tmp/last_emails.txt
+
+#################### Internal Information ####################
 
 what_command()
 {
@@ -10,6 +17,10 @@ what_command()
             echo "help 'command' - command use instructions"
             echo "user - search for username on preset websites"
             echo "exit - close crawler"
+            echo "create_profile 'name' - create new profile"
+            echo "show_profile 'name' - echo info for profile"
+            echo "add_links 'name' - save found accounts links to local profile"
+            echo "add_note 'name' - add note to local profile"
 }
 
 help_command()
@@ -20,6 +31,91 @@ help_command()
         echo "might tell you how to use it."
     fi
 }
+
+
+
+#################### Internal files structure ####################
+
+##### Profile #####
+
+create_profile() {
+
+    profile="$1"
+
+    mkdir -p "profiles/$profile"
+
+    touch profiles/$profile/links.txt
+    touch profiles/$profile/emails.txt
+    touch profiles/$profile/notes.txt
+
+    echo "Profile '$profile' created."
+}
+
+show_profile() {
+
+    profile="$1"
+
+    if [ ! -d "profiles/$profile" ]; then
+        echo "Profile not found"
+        return
+    fi
+
+    echo "Profile: $profile"
+    echo "----------------"
+
+    echo "Notes:"
+    cat profiles/$profile/notes.txt
+    echo ""
+    echo "E-mail/s:"
+    cat profiles/$profile/emails.txt
+    echo ""
+    echo "Links:"
+    cat profiles/$profile/links.txt
+}
+
+
+
+##### Manage Data #####
+
+#Add found account links to an existing profile
+
+add_links() {
+
+echo "Looking for: profiles/$profile"
+ls -l profiles/
+    profile="$1"
+
+    if [ ! -d "profiles/$profile" ]; then
+        echo "Profile not found"
+        return
+    fi
+
+    cat tmp/last_links.txt >> profiles/$profile/links.txt
+
+    echo "Links added to profile '$profile'"
+}
+
+
+add_note() {
+
+    profile="$1"
+
+    if [ ! -d "profiles/$profile" ]; then
+        echo "Profile not found"
+        return
+    fi
+
+    shift
+
+    note="$*"
+
+    echo "$note" >> profiles/$profile/notes.txt
+}
+
+#################### Performable actions [to find information] ####################
+
+
+##### User Search #####
 
 generate_variations() {
 
@@ -71,9 +167,13 @@ user_check() {
         return
     fi
 
+    #clear previous results saved in tmp
+    > tmp/last_links.txt
+
     generate_variations "$username"
 
     sites=(
+        "https://www.linkedin.com/"
         "https://github.com/"
         "https://reddit.com/user/"
         "https://instagram.com/"
@@ -94,9 +194,8 @@ user_check() {
             status=$(curl -s -o /dev/null -w "%{http_code}" "$url")
 
             if [ "$status" = "200" ]; then
-                echo "[FOUND] $url"
-            else
-                echo "[...]"
+                echo "[FOUND] $url" 
+                echo "$url" >> tmp/last_links.txt # add found link to tmp
             fi
 
         done
@@ -106,7 +205,7 @@ user_check() {
 
 
 
-#Main Loop
+#################### Main Loop ####################
 
 while true; do
     read -p "bitint-#:" command arg1 arg2
@@ -128,6 +227,22 @@ while true; do
         
         user)
             user_check "$arg1"
+            ;;
+
+        create_profile)
+            create_profile "$arg1"
+            ;;
+
+        show_profile)
+            show_profile "$arg1"
+            ;;
+
+        add_links)
+            add_links "$arg1$"
+            ;;
+
+        add_note)
+            add_note "$arg1"
             ;;
 
            *)
