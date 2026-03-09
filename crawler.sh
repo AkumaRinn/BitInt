@@ -40,7 +40,7 @@ help_command()
 
 create_profile() {
 
-    profile="$1"
+    profile="$arg1"
 
     mkdir -p "profiles/$profile"
 
@@ -71,6 +71,7 @@ show_profile() {
     echo ""
     echo "Links:"
     cat profiles/$profile/links.txt
+    echo ""
 }
 
 
@@ -81,9 +82,7 @@ show_profile() {
 
 add_links() {
 
-echo "Looking for: profiles/$profile"
-ls -l profiles/
-    profile="$1"
+    profile="$arg1"
 
     if [ ! -d "profiles/$profile" ]; then
         echo "Profile not found"
@@ -98,7 +97,7 @@ ls -l profiles/
 
 add_note() {
 
-    profile="$1"
+    profile="$arg1"
 
     if [ ! -d "profiles/$profile" ]; then
         echo "Profile not found"
