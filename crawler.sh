@@ -1,7 +1,9 @@
 #!/bin/bash
 
-echo "The crawler"
-echo "use 'what' to see available commands"
+
+source logo.sh
+
+print_logo
 
 # Ensure tmp folder exists - to store tmp data that can be saved into profiles
 mkdir -p tmp
@@ -13,14 +15,17 @@ mkdir -p tmp
 
 what_command()
 {
-            echo "what - this command - shows all available commands"
-            echo "help 'command' - command use instructions"
-            echo "user - search for username on preset websites"
-            echo "exit - close crawler"
-            echo "create_profile 'name' - create new profile"
-            echo "show_profile 'name' - echo info for profile"
-            echo "add_links 'name' - save found accounts links to local profile"
-            echo "add_note 'name' - add note to local profile"
+            echo ""
+            echo "	what - this command - shows all available commands"
+            echo "	help 'command' - command use instructions"
+            echo "	user - search for username on preset websites"
+            echo "	exit - close crawler"
+            echo "	create_profile 'name' - create new profile"
+            echo "	profiles - list all created profiles"
+            echo "	profile 'name' - echo info for profile"
+            echo "	add_links 'profile' - save found accounts links to local profile"
+            echo "	add_note 'profile' - add note to local profile"
+            echo ""
 }
 
 help_command()
@@ -32,7 +37,11 @@ help_command()
     fi
 }
 
-
+clear_f()
+{
+    command clear
+    print_logo
+}
 
 #################### Internal files structure ####################
 
@@ -59,7 +68,8 @@ show_profile() {
         echo "Profile not found"
         return
     fi
-
+    
+    echo ""
     echo "Profile: $profile"
     echo "----------------"
 
@@ -74,6 +84,17 @@ show_profile() {
     echo ""
 }
 
+list_profiles()
+{
+    if [ ! -d "profiles" ]; then
+        echo "No profiles directory found."
+        return
+    fi
+
+    echo ""
+    echo "Available profiles:"
+    ls -1 profiles/
+}
 
 
 ##### Manage Data #####
@@ -198,7 +219,7 @@ user_check() {
             fi
 
         done
-
+        echo ""
     done
 }
 
@@ -207,7 +228,7 @@ user_check() {
 #################### Main Loop ####################
 
 while true; do
-    read -p "bitint-#:" command arg1 arg2
+    read -p "bitint-#: " command arg1 arg2
     
     case $command in
         
@@ -217,6 +238,10 @@ while true; do
         
         help)
             help_command "$arg1"
+            ;;
+    
+        clear)
+            clear_f
             ;;
 
         exit)
@@ -232,8 +257,12 @@ while true; do
             create_profile "$arg1"
             ;;
 
-        show_profile)
+        profile)
             show_profile "$arg1"
+            ;;
+
+       profiles)
+            list_profiles
             ;;
 
         add_links)
