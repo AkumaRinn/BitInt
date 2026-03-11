@@ -96,6 +96,28 @@ list_profiles()
     ls -1 profiles/
 }
 
+remove_profile() {
+
+    profile="$1"
+
+    if [ ! -d "profiles/$profile" ]; then
+        echo "Profile not found"
+        return
+    fi
+
+    read -p "Are you sure you want to remove profile '$profile'? (yes/no): " answer
+
+    case "$answer" in
+        y|Y|yes|YES)
+            rm -rf "profiles/$profile"
+            echo "Profile '$profile' removed."
+            ;;
+        *)
+            echo "Removal canceled"
+            ;;
+    esac
+}
+
 
 ##### Manage Data #####
 
@@ -263,6 +285,10 @@ while true; do
 
        profiles)
             list_profiles
+            ;;
+
+             rm)
+            remove_profile "$arg1"
             ;;
 
         add_links)
