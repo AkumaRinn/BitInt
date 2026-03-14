@@ -5,6 +5,15 @@ source logo.sh
 
 print_logo
 
+
+# Move the style in a config file
+GREEN="\033[32m"
+RED="\033[31m"
+YELLOW="\033[33m"
+RESET="\033[0m"
+
+
+
 # Ensure tmp folder exists - to store tmp data that can be saved into profiles
 mkdir -p tmp
 # Make sure temporary files exist and are empty
@@ -23,6 +32,7 @@ what_command()
             echo "	create_profile 'name' - create new profile"
             echo "	profiles - list all created profiles"
             echo "	profile 'name' - echo info for profile"
+            echo "      rm 'profile' - delete profile and all its data"
             echo "	add_links 'profile' - save found accounts links to local profile"
             echo "	note 'profile' 'text' - add note to local profile"
             echo ""
@@ -31,7 +41,7 @@ what_command()
 help_command()
 {
     if [ -z "$1" ]; then
-        echo "Missing argument. Check command 'what'"
+        echo -e "${RED}Missing argument. Check command 'what' ${RESET}"
     else
         echo "might tell you how to use it."
     fi
@@ -57,7 +67,7 @@ create_profile() {
     touch profiles/$profile/emails.txt
     touch profiles/$profile/notes.txt
 
-    echo "Profile '$profile' created."
+    echo -e "${GREEN}[+] Profile '$profile' created. ${RESET}"
 }
 
 show_profile() {
@@ -65,7 +75,7 @@ show_profile() {
     profile="$1"
 
     if [ ! -d "profiles/$profile" ]; then
-        echo "Profile not found"
+        echo -e "${RED}[!] Profile '$profile' not found ${RESET}"
         return
     fi
     
@@ -87,13 +97,14 @@ show_profile() {
 list_profiles()
 {
     if [ ! -d "profiles" ]; then
-        echo "No profiles directory found."
+        echo -e "${RED}[!] No profiles found. ${RESET}"
         return
     fi
 
     echo ""
     echo "Available profiles:"
     ls -1 profiles/
+    echo ""
 }
 
 remove_profile() {
@@ -101,19 +112,20 @@ remove_profile() {
     profile="$1"
 
     if [ ! -d "profiles/$profile" ]; then
-        echo "Profile not found"
+        echo -e "${RED}[!] Profile '$profile' not found ${RESET}"
         return
     fi
 
-    read -p "Are you sure you want to remove profile '$profile'? (yes/no): " answer
+    echo -ne "${YELLOW}[*] Remove profile '$profile'?${RESET} (yes/no): "
+    read -e answer
 
     case "$answer" in
         y|Y|yes|YES)
             rm -rf "profiles/$profile"
-            echo "Profile '$profile' removed."
+            echo -e "${GREEN}[-] Profile '$profile' removed.${RESET}"
             ;;
         *)
-            echo "Removal canceled"
+            echo -e "${GREEN}[*] Removal canceled ${RESET}"
             ;;
     esac
 }
@@ -128,13 +140,14 @@ add_links() {
     profile="$arg1"
 
     if [ ! -d "profiles/$profile" ]; then
-        echo "Profile not found"
+        echo -e "${RED}[!] Profile '$profile' not found ${RESET}"
         return
     fi
 
     cat tmp/last_links.txt >> profiles/$profile/links.txt
 
     echo "Links added to profile '$profile'"
+    sort -u profiles/$profile/links.txt -o profiles/$profile/links.txt
 }
 
 
@@ -143,7 +156,7 @@ add_note() {
     profile="$arg1"
 
     if [ ! -d "profiles/$profile" ]; then
-        echo "Profile not found"
+        echo -e "${RED}[!] Profile '$profile' not found ${RESET}"
         return
     fi
 
@@ -152,6 +165,8 @@ add_note() {
     note="$*"
 
     echo "$note" >> profiles/$profile/notes.txt
+    echo -e "${GREEN}[+] Note added to profile: $profile ${RESET}"
+    echo ""
 }
 
 #################### Performable actions [to find information] ####################
@@ -205,7 +220,7 @@ user_check() {
     username="$1"
 
     if [ -z "$username" ]; then
-        echo "Missing username"
+        echo -e "${RED}[!] Missing username ${RESET}"
         return
     fi
 
@@ -236,7 +251,7 @@ user_check() {
             status=$(curl -s -o /dev/null -w "%{http_code}" "$url")
 
             if [ "$status" = "200" ]; then
-                echo "[FOUND] $url" 
+                echo -e "${GREEN}[+]Found: $url ${RESET}" 
                 echo "$url" >> tmp/last_links.txt # add found link to tmp
             fi
 
@@ -300,7 +315,7 @@ while true; do
             ;;
 
            *)
-            echo "Unknown command"
+            echo -e "${RED}[!] Unknown command: $command ${RESET}"
             ;;
     esac
             
