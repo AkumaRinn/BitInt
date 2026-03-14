@@ -24,7 +24,7 @@ what_command()
             echo "	profiles - list all created profiles"
             echo "	profile 'name' - echo info for profile"
             echo "	add_links 'profile' - save found accounts links to local profile"
-            echo "	add_note 'profile' - add note to local profile"
+            echo "	note 'profile' 'text' - add note to local profile"
             echo ""
 }
 
@@ -250,7 +250,7 @@ user_check() {
 #################### Main Loop ####################
 
 while true; do
-    read -p "bitint-#: " command arg1 arg2
+    read -p "bitint-#: " command arg1 rest
     
     case $command in
         
@@ -295,8 +295,8 @@ while true; do
             add_links "$arg1$"
             ;;
 
-        add_note)
-            add_note "$arg1"
+        note)
+            add_note "$arg1" "$rest"
             ;;
 
            *)
