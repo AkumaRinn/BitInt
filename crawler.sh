@@ -80,16 +80,16 @@ show_profile() {
     fi
     
     echo ""
-    echo "Profile: $profile"
-    echo "----------------"
+    echo -e "${YELLOW}[*] Profile: $profile ${RESET}"
+    echo "---------------------------"
 
-    echo "Notes:"
+    echo -e "${YELLOW}[*] Notes: ${RESET}"
     cat profiles/$profile/notes.txt
     echo ""
-    echo "E-mail/s:"
+    echo -e "${YELLOW}[*] E-mail/s: ${RESET}"
     cat profiles/$profile/emails.txt
     echo ""
-    echo "Links:"
+    echo -e "${YELLOW}[*] Links: ${RESET}"
     cat profiles/$profile/links.txt
     echo ""
 }
@@ -102,8 +102,9 @@ list_profiles()
     fi
 
     echo ""
-    echo "Available profiles:"
-    ls -1 profiles/
+    echo -e "${YELLOW}[*] Available profiles: ${RESET}"
+    echo ""
+    ls -1 profiles/ | sed 's/^/\t/'
     echo ""
 }
 
@@ -146,8 +147,9 @@ add_links() {
 
     cat tmp/last_links.txt >> profiles/$profile/links.txt
 
-    echo "Links added to profile '$profile'"
+    echo -e "${GREEN}[+]Links added to profile '$profile' ${RESET}"
     sort -u profiles/$profile/links.txt -o profiles/$profile/links.txt
+    echo ""
 }
 
 
@@ -242,7 +244,7 @@ user_check() {
     for name in "${variations[@]}"; do
 
         echo ""
-        echo "Checking: $name"
+        echo -e "${YELLOW}[*]Checking: $name ${RESET}"
 
         for site in "${sites[@]}"; do
 
@@ -282,7 +284,7 @@ while true; do
             ;;
 
         exit)
-            echo "Bye"
+            echo -e "${GREEN}[!] Alea iacta est ${RESET}"
             break
             ;;
         
